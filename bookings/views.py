@@ -36,7 +36,25 @@ class BookingListCreateView(generics.ListCreateAPIView):
 		serializer.save(client=self.request.user)
 
 # Retrieve, update, and delete/cancel a booking
+
+from django.utils import timezone
+from datetime import timedelta
+
 class BookingRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 	queryset = Booking.objects.all()
 	serializer_class = BookingSerializer
 	permission_classes = [permissions.IsAuthenticated, IsBookingOwner]
+
+	def perform_update(self, serializer):
+		old_status = self.get_object().status
+		booking = serializer.save()
+		# If status changed to completed, create a new booking 6 weeks later
+		if old_status != 'completed' and booking.status == 'completed':
+			new_appointment_time = booking.appointment_time + timedelta(weeks=6)
+			Booking.objects.create(
+				client=booking.client,
+				staff=booking.staff,
+				service=booking.service,
+				appointment_time=new_appointment_time,
+				status='pending'
+			)
