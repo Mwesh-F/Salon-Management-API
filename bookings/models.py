@@ -1,7 +1,7 @@
 
 from django.db import models
 from accounts.models import CustomUser
-from staff.models import Staff
+ # from staff.models import Staff  # Deprecated
 from services.models import Service
 
 class Booking(models.Model):
@@ -16,8 +16,8 @@ class Booking(models.Model):
 		(STATUS_CANCELED, 'Canceled'),
 	]
 
-	client = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-	staff = models.ForeignKey(Staff, on_delete=models.SET_NULL, null=True, blank=True)
+	client = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='client_bookings')
+	staff = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='staff_bookings', limit_choices_to={'role': 'staff'})
 	service = models.ForeignKey(Service, on_delete=models.CASCADE)
 	appointment_time = models.DateTimeField()
 	status = models.CharField(max_length=10, choices=STATUS_CHOICES, default=STATUS_PENDING)

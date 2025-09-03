@@ -1,3 +1,101 @@
+## 📬 Example Postman Requests
+
+
+### 1. User Registration
+**POST** `http://127.0.0.1:8000/api/accounts/register/`
+Body (JSON):
+```
+{
+	"username": "testuser",
+	"email": "test@example.com",
+	"password": "testpass123"
+}
+```
+
+### 1b. User Login
+**POST** `http://127.0.0.1:8000/api/accounts/login/`
+Body (JSON):
+```
+{
+	"username": "testuser",
+	"password": "testpass123"
+}
+```
+Response:
+```
+{
+	"token": "your_token_here"
+}
+```
+
+
+### 2. Service Creation
+**POST** `http://127.0.0.1:8000/api/services/`
+Headers: `Authorization: Token <your_token>`
+Body (JSON):
+```
+{
+	"name": "Haircut",
+	"description": "Basic haircut",
+	"due_date": "2025-09-01T10:00:00Z",
+	"priority_level": "Low"
+}
+```
+
+
+### 3. Staff Registration (now via CustomUser)
+**POST** `http://127.0.0.1:8000/api/accounts/register/`
+Body (JSON):
+```
+{
+	"username": "staff1",
+	"email": "staff1@example.com",
+	"password": "staffpass123",
+	"role": "staff"
+}
+```
+Response:
+```
+{
+	"username": "staff1",
+	"email": "staff1@example.com",
+	"role": "staff"
+}
+```
+
+### 3b. Staff Login
+**POST** `http://127.0.0.1:8000/api/accounts/login/`
+Body (JSON):
+```
+{
+	"username": "staff1",
+	"password": "staffpass123"
+}
+```
+Response:
+```
+{
+	"token": "your_token_here"  
+}
+```
+
+Staff can use this token for authenticated requests (e.g., booking creation):
+- Header: `Authorization: Token your_token_here`
+
+### 4. Booking Creation (by staff or client)
+**POST** `http://127.0.0.1:8000/api/bookings/`
+Headers: `Authorization: Token <your_token>`
+Body (JSON):
+```
+{
+	"service": 1,
+	"staff": 2, // staff user ID (CustomUser with role="staff")
+	"appointment_time": "2025-09-02T12:00:00Z",
+	"status": "pending"
+}
+```
+
+---
 # 💇‍♀️ Salon Booking & Management System  
 _A Capstone Project Adapted from a Task Management API_  
 
@@ -35,9 +133,17 @@ This project demonstrates **backend engineering skills** such as **user authenti
 ---
 
 ## 🗂 Django App Structure  
-- **Accounts** → Handles user registration, login, logout  
-- **Services** → Manages available salon services  
-- **Bookings** → Handles appointment creation, updates, cancellations  
+## 🧪 API Testing
+
+Basic tests for user registration, service creation, booking creation, and booking update/cancellation are included in `tests.py`.
+
+To run the tests:
+```bash
+python manage.py test
+```
+
+Each test checks response status codes and returned data to make sure the API works as expected.
+
 - **Staff** → Manages staff info and authentication  
 
 ---

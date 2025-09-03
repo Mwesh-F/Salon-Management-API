@@ -18,7 +18,7 @@ class BookingListCreateView(generics.ListCreateAPIView):
 	def get_queryset(self):
 		queryset = Booking.objects.all()
 		status = self.request.query_params.get('status')
-		staff = self.request.query_params.get('staff')
+		staff = self.request.query_params.get('staff')  # staff is CustomUser with role='staff'
 		service = self.request.query_params.get('service')
 		appointment_time = self.request.query_params.get('appointment_time')
 
