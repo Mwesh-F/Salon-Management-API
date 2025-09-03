@@ -78,22 +78,12 @@ Response:
 	"token": "your_token_here"  
 }
 ```
+### 3. Service Booking
 
-Staff can use this token for authenticated requests (e.g., booking creation):
-- Header: `Authorization: Token your_token_here`
 
-### 4. Booking Creation (by staff or client)
-**POST** `http://127.0.0.1:8000/api/bookings/`
-Headers: `Authorization: Token <your_token>`
-Body (JSON):
-```
-{
-	"service": 1,
-	"staff": 2, // staff user ID (CustomUser with role="staff")
-	"appointment_time": "2025-09-02T12:00:00Z",
-	"status": "pending"
-}
-```
+### Booking Management (Staff Only)
+**GET/POST** `http://127.0.0.1:8000/api/bookings/`
+Headers: `Authorization: Token staff-<id>-token`
 
 ---
 # 💇‍♀️ Salon Booking & Management System  
@@ -203,3 +193,59 @@ The **Salon Booking & Management System** is a **Task Management API adapted to 
 By managing bookings as tasks, assigning staff, sending reminders, and auto-scheduling recurring appointments, this project delivers both **academic alignment** and **real-world impact**.  
 
 ---
+### 4. Service Update (PATCH)
+**PATCH** `http://127.0.0.1:8000/api/services/<service_id>/`
+Headers: 
+- For staff: `Authorization: staff-<id>-token`
+- For client: `Authorization: Token <your_token>`
+Body (JSON):
+```
+{
+    "name": "Updated Service Name",
+    "priority_level": "High"
+}
+```
+Response:
+```
+{
+    "id": <service_id>,
+    "name": "Updated Service Name",
+    "description": "...",
+    "due_date": "...",
+    "priority_level": "High"
+}
+```
+
+### 5. Service Deletion (DELETE)
+**DELETE** `http://127.0.0.1:8000/api/services/<service_id>/`
+Headers: 
+- For staff: `Authorization: staff-<id>-token`
+- For client: `Authorization: Token <your_token>`
+Response:
+```
+Status: 204 No Content
+```
+
+### 3c. Staff Create Service & Get Service ID
+**POST** `http://127.0.0.1:8000/api/services/`
+Headers: `Authorization: staff-<id>-token`
+Body (JSON):
+```
+{
+    "name": "Test Service",
+    "description": "Service for update/delete test",
+    "due_date": "2025-09-01T10:00:00Z",
+    "priority_level": "Medium"
+}
+```
+Response:
+```
+{
+    "id": 1,
+    "name": "Test Service",
+    "description": "Service for update/delete test",
+    "due_date": "2025-09-01T10:00:00Z",
+    "priority_level": "Medium"
+}
+```
+Use the returned `id` for update and delete requests.

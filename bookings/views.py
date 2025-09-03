@@ -1,24 +1,33 @@
-
 from rest_framework import generics, permissions
+from staff.authentication import StaffTokenAuthentication
+from rest_framework.permissions import BasePermission
 from .models import Booking
 from .serializers import BookingSerializer
+from django.utils import timezone
+from datetime import timedelta
+
+# Simple permission for staff
+class IsStaff(BasePermission):
+	def has_permission(self, request, view):
+		from staff.models import Staff
+		return isinstance(request.user, Staff)
+
 
 # Custom permission so only the client can update or delete their booking
 class IsBookingOwner(permissions.BasePermission):
 	def has_object_permission(self, request, view, obj):
 		return obj.client == request.user
 
-# List all bookings and create a new booking
-
-# List all bookings and create a new booking, with filtering
+# List and create bookings (staff only)
 class BookingListCreateView(generics.ListCreateAPIView):
 	serializer_class = BookingSerializer
-	permission_classes = [permissions.IsAuthenticated]
+	authentication_classes = [StaffTokenAuthentication]
+	permission_classes = [IsStaff]
 
 	def get_queryset(self):
 		queryset = Booking.objects.all()
 		status = self.request.query_params.get('status')
-		staff = self.request.query_params.get('staff')  # staff is CustomUser with role='staff'
+		staff = self.request.query_params.get('staff')
 		service = self.request.query_params.get('service')
 		appointment_time = self.request.query_params.get('appointment_time')
 
@@ -33,17 +42,14 @@ class BookingListCreateView(generics.ListCreateAPIView):
 		return queryset
 
 	def perform_create(self, serializer):
-		serializer.save(client=self.request.user)
+		serializer.save()
 
-# Retrieve, update, and delete/cancel a booking
-
-from django.utils import timezone
-from datetime import timedelta
-
+# Retrieve, update, and delete/cancel a booking (staff only)
 class BookingRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 	queryset = Booking.objects.all()
 	serializer_class = BookingSerializer
-	permission_classes = [permissions.IsAuthenticated, IsBookingOwner]
+	authentication_classes = [StaffTokenAuthentication]
+	permission_classes = [IsStaff]
 
 	def perform_update(self, serializer):
 		old_status = self.get_object().status

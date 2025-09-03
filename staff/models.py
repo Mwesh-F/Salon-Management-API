@@ -1,6 +1,15 @@
-
+# Staff model for authentication
 from django.db import models
 
-# This model is for staff management and is separate from CustomUser
+class Staff(models.Model):
+	username = models.CharField(max_length=150, unique=True)
+	email = models.EmailField(unique=True)
+	password = models.CharField(max_length=128)
 
-# Staff model deprecated. Use CustomUser with role='staff'.
+	def __str__(self):
+		return self.username
+
+	@property
+	def is_authenticated(self):
+		return True
+
